@@ -20,7 +20,7 @@ def create_alert(payload: SoundEventCreate, db: Session = Depends(get_db)):
         device_id=payload.device_id,
         sound_type=payload.sound_type,
         is_risk=payload.is_risk,
-        direction_deg=payload.direction_deg,
+        direction=payload.direction,
         confidence=payload.confidence,
         stt_text=payload.stt_text,
         raw_payload=json.dumps(payload.raw_payload, ensure_ascii=False) if payload.raw_payload else None,
