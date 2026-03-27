@@ -9,7 +9,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 8000
+        value: "8000"
       - key: APP_NAME
         value: hearing-backend-service
       - key: APP_ENV
@@ -33,7 +33,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 8001
+        value: "8001"
       - key: APP_NAME
         value: hearing-ai-service
       - key: APP_ENV
@@ -51,6 +51,6 @@ services:
     plan: starter
     autoDeploy: true
 
-  - type: pserv
-    name: hearing-postgres
+databases:
+  - name: hearing-postgres
     plan: starter
