@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hearing Assistant Admin</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>청각장애인 생활 보조 시스템 - Admin Web</h1>
+  <p>이 페이지는 초기 배포 확인용입니다.</p>
+
+  <div class="card">
+    <h2>배포 후 직접 확인할 주소</h2>
+    <p>배포 플랫폼에서 각 서비스 URL이 생성되면 아래 경로를 직접 열어 확인하세요.</p>
+    <ul>
+      <li>Backend: <code>https://YOUR-BACKEND-URL/health</code></li>
+      <li>AI Service: <code>https://YOUR-AI-URL/health</code></li>
+      <li>Backend Docs: <code>https://YOUR-BACKEND-URL/docs</code></li>
+      <li>AI Docs: <code>https://YOUR-AI-URL/docs</code></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>다음 작업</h2>
+    <ul>
+      <li>React/Vite 관리자 화면으로 교체</li>
+      <li>실시간 이벤트 목록 추가</li>
+      <li>STT 로그 조회 추가</li>
+      <li>디바이스 상태 모니터링 추가</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>예시 API</h2>
+    <p><code>POST /api/v1/ingest</code> → AI 서비스 수신</p>
+    <p><code>POST /api/v1/alerts</code> → 백엔드 저장</p>
+  </div>
+</body>
+</html>

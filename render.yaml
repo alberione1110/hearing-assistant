@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: hearing-backend-service
+    runtime: docker
+    dockerContext: ./backend-service
+    dockerfilePath: ./backend-service/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: APP_NAME
+        value: hearing-backend-service
+      - key: APP_ENV
+        value: production
+      - key: API_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hearing-postgres
+          property: connectionString
+      - key: BACKEND_CORS_ORIGINS
+        value: https://example-admin.onrender.com
+
+  - type: web
+    name: hearing-ai-service
+    runtime: docker
+    dockerContext: ./ai-service
+    dockerfilePath: ./ai-service/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: APP_NAME
+        value: hearing-ai-service
+      - key: APP_ENV
+        value: production
+      - key: AI_SHARED_TOKEN
+        generateValue: true
+      - key: BACKEND_INTERNAL_URL
+        value: https://hearing-backend-service.onrender.com
+
+  - type: web
+    name: hearing-admin-web
+    runtime: docker
+    dockerContext: ./admin-web
+    dockerfilePath: ./admin-web/Dockerfile
+    plan: starter
+    autoDeploy: true
+
+  - type: pserv
+    name: hearing-postgres
+    plan: starter
+    postgresMajorVersion: 16

@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: hearing-postgres
+    environment:
+      POSTGRES_DB: hearing_assistant
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend-service:
+    build:
+      context: ./backend-service
+    container_name: backend-service
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/hearing_assistant
+      PORT: 8000
+      BACKEND_CORS_ORIGINS: http://localhost:8080,http://localhost:3000
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+
+  ai-service:
+    build:
+      context: ./ai-service
+    container_name: ai-service
+    env_file:
+      - .env
+    environment:
+      PORT: 8001
+      BACKEND_INTERNAL_URL: http://backend-service:8000
+      AI_SHARED_TOKEN: change-me
+    depends_on:
+      - backend-service
+    ports:
+      - "8001:8001"
+
+  admin-web:
+    build:
+      context: ./admin-web
+    container_name: admin-web
+    depends_on:
+      - backend-service
+      - ai-service
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:
