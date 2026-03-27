@@ -54,4 +54,3 @@ services:
   - type: pserv
     name: hearing-postgres
     plan: starter
-    postgresMajorVersion: 16
