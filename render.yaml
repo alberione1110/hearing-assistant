@@ -53,4 +53,4 @@ services:
 
 databases:
   - name: hearing-postgres
-    plan: starter
+    plan: free
