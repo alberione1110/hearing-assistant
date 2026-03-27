@@ -4,7 +4,7 @@ services:
     runtime: docker
     dockerContext: ./backend-service
     dockerfilePath: ./backend-service/Dockerfile
-    plan: starter
+    plan: free
     autoDeploy: true
     healthCheckPath: /health
     envVars:
@@ -28,7 +28,7 @@ services:
     runtime: docker
     dockerContext: ./ai-service
     dockerfilePath: ./ai-service/Dockerfile
-    plan: starter
+    plan: free
     autoDeploy: true
     healthCheckPath: /health
     envVars:
@@ -48,7 +48,7 @@ services:
     runtime: docker
     dockerContext: ./admin-web
     dockerfilePath: ./admin-web/Dockerfile
-    plan: starter
+    plan: free
     autoDeploy: true
 
 databases:
