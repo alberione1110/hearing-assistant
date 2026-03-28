@@ -11,7 +11,7 @@ class SoundEvent(Base):
     device_id: Mapped[str] = mapped_column(String(100), index=True)
     sound_type: Mapped[str] = mapped_column(String(100), index=True)
     is_risk: Mapped[bool] = mapped_column(Boolean, default=False)
-    direction_deg: Mapped[float | None] = mapped_column(Float, nullable=True)
+    direction: Mapped[str | None] = mapped_column(String(20), nullable=True)  # front | back | left | right | unknown
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     stt_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     raw_payload: Mapped[str | None] = mapped_column(Text, nullable=True)
