@@ -45,3 +45,29 @@ def decode_token(token: str) -> int | None:
         return int(payload.get("sub"))
     except JWTError:
         return None
+    
+    
+# ── JWT 인증 의존성 (API에서 현재 로그인한 유저 확인용) ──
+# FastAPI의 Depends()에 넣어서 사용하는 함수
+# API 호출 시 자동으로 토큰을 확인하고, 유효하면 user_id를 반환함
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+# HTTPBearer: 요청 헤더에서 "Authorization: Bearer {토큰}" 형식을 자동으로 읽어줌
+bearer_scheme = HTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> int:
+    """
+    사용 방법: API 함수 파라미터에 user_id: int = Depends(get_current_user) 추가
+    그러면 해당 API는 자동으로 JWT 인증이 필요해지고,
+    토큰이 유효하면 user_id를 받아서 사용할 수 있음
+    """
+    token = credentials.credentials          # 헤더에서 토큰 문자열 꺼냄
+    user_id = decode_token(token)            # 토큰 해석해서 user_id 추출
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='유효하지 않거나 만료된 토큰입니다',
+        )
+    return user_id    
