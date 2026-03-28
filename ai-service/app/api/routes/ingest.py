@@ -2,7 +2,7 @@ from fastapi import APIRouter, Header, HTTPException, status
 from pydantic import BaseModel, Field
 from app.core.config import settings
 from app.services.forwarder import forward_to_backend
-from app.services.stt import run_stt
+from app.services.stt_service import run_stt
 
 router = APIRouter(prefix='/api/v1/ingest', tags=['ingest'])
 
