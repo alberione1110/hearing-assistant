@@ -21,7 +21,7 @@ services:
           name: hearing-postgres
           property: connectionString
       - key: BACKEND_CORS_ORIGINS
-        value: https://example-admin.onrender.com
+        value: "*"
 
   - type: web
     name: hearing-ai-service
@@ -42,14 +42,6 @@ services:
         generateValue: true
       - key: BACKEND_INTERNAL_URL
         value: https://hearing-backend-service.onrender.com
-
-  - type: web
-    name: hearing-admin-web
-    runtime: docker
-    dockerContext: ./admin-web
-    dockerfilePath: ./admin-web/Dockerfile
-    plan: free
-    autoDeploy: true
 
 databases:
   - name: hearing-postgres
