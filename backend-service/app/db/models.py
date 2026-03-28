@@ -16,3 +16,13 @@ class SoundEvent(Base):
     stt_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     raw_payload: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    platform: Mapped[str] = mapped_column(String(10), nullable=False)  # ios | android
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)    
