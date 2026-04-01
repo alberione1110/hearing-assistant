@@ -6,6 +6,9 @@ from app.api.routes.alerts import router as alerts_router
 from app.api.routes.health import router as health_router
 from app.api.routes.ws import router as ws_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.subtitles import router as subtitles_router      # 자막 히스토리 API
+from app.api.routes.directions import router as directions_router    # 방향 감지 이력 API
+from app.api.routes.settings import router as settings_router        # 설정 API
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
@@ -36,6 +39,9 @@ app.include_router(health_router)
 app.include_router(alerts_router)
 app.include_router(ws_router)
 app.include_router(auth_router)
+app.include_router(subtitles_router)    # 자막 히스토리 API 등록
+app.include_router(directions_router)   # 방향 감지 이력 API 등록
+app.include_router(settings_router)     # 설정 API 등록
 
 
 @app.get('/')
