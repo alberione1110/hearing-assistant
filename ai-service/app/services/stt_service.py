@@ -1,14 +1,21 @@
-def run_stt(sound_type: str, transcript_hint: str | None = None) -> str | None:
-    """
-    임시 STT 함수입니다.
-    실제 운영에서는 Whisper / faster-whisper / 외부 STT API 등으로 교체하세요.
-    """
+from app.core.config import settings
+
+
+def run_stt(transcript_hint: str | None, sound_type: str) -> str | None:
+    if settings.stt_provider == "dummy":
+        if transcript_hint:
+            return transcript_hint
+
+        dummy_map = {
+            "car_horn": "경적 소리 감지",
+            "siren": "사이렌 소리 감지",
+            "dog_bark": "개 짖는 소리 감지",
+            "baby_cry": "아기 울음소리 감지",
+        }
+        return dummy_map.get(sound_type)
+
+    # 나중에 Whisper/OpenAI 연동
     if transcript_hint:
         return transcript_hint
 
-    demo_map = {
-        'car_horn': '자동차 경적 소리가 감지되었습니다.',
-        'siren': '사이렌 소리가 감지되었습니다.',
-        'dog_bark': '개 짖는 소리가 감지되었습니다.',
-    }
-    return demo_map.get(sound_type)
+    return None
