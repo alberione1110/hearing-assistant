@@ -1,18 +1,19 @@
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-class IngestRequest(BaseModel):
+class EventIn(BaseModel):
     device_id: str = Field(..., min_length=1)
+    event_type: Literal["risk_sound", "human_call"]
     sound_type: str = Field(..., min_length=1)
     is_risk: bool
     direction: str | None = "unknown"
-    confidence: float | None = Field(default=0.0, ge=0.0, le=1.0)
-    transcript_hint: str | None = ""
+    confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    detected_text: str | None = None
     metadata: dict[str, Any] | None = None
 
 
-class IngestResponse(BaseModel):
+class EventOut(BaseModel):
     message: str
     normalized_payload: dict[str, Any]
     backend_response: dict[str, Any] | None = None

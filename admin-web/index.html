@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="ko">
 <head>
@@ -5,15 +6,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hearing Assistant Admin</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-    code { background: #f4f4f4; padding: 2px 6px; border-radius: 6px; }
-    a { text-decoration: none; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      line-height: 1.6;
+      background: #fafafa;
+      color: #222;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    pre {
+      background: #111;
+      color: #eee;
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 120px;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
   <h1>청각장애인 생활 보조 시스템 - Admin Web</h1>
-  <p>이 페이지는 초기 배포 확인용입니다.</p>
+  <p>이 페이지는 초기 배포 확인 및 STT 테스트용 관리자 페이지입니다.</p>
 
   <div class="card">
     <h2>배포 후 직접 확인할 주소</h2>
@@ -41,5 +108,123 @@
     <p><code>POST /api/v1/ingest</code> → AI 서비스 수신</p>
     <p><code>POST /api/v1/alerts</code> → 백엔드 저장</p>
   </div>
+
+  <div class="card">
+    <h2>STT 업로드 테스트</h2>
+
+    <label for="ai_url">AI 서버 URL</label>
+    <input type="text" id="ai_url" value="https://YOUR-AI-URL" />
+
+    <label for="token">x-ai-token</label>
+    <input type="text" id="token" value="change-me" />
+
+    <label for="device_id">device_id</label>
+    <input type="text" id="device_id" value="cap-001" />
+
+    <label for="sound_type">sound_type</label>
+    <input type="text" id="sound_type" value="conversation" />
+
+    <label for="audio">audio file</label>
+    <input type="file" id="audio" accept=".wav,.mp3,.m4a,.webm,.ogg" />
+
+    <button type="button" onclick="uploadSTT()">업로드 후 STT 실행</button>
+    <div class="status" id="status">대기 중</div>
+
+    <h3>결과</h3>
+    <pre id="result">아직 없음</pre>
+  </div>
+
+  <script>
+    async function uploadSTT() {
+      const aiUrl = document.getElementById("ai_url").value.trim();
+      const token = document.getElementById("token").value.trim();
+      const deviceId = document.getElementById("device_id").value.trim();
+      const soundType = document.getElementById("sound_type").value.trim();
+      const audio = document.getElementById("audio").files[0];
+      const resultBox = document.getElementById("result");
+      const statusBox = document.getElementById("status");
+
+      if (!aiUrl) {
+        resultBox.textContent = "AI 서버 URL을 입력하세요.";
+        return;
+      }
+
+      if (!token) {
+        resultBox.textContent = "x-ai-token을 입력하세요.";
+        return;
+      }
+
+      if (!deviceId) {
+        resultBox.textContent = "device_id를 입력하세요.";
+        return;
+      }
+
+      if (!soundType) {
+        resultBox.textContent = "sound_type을 입력하세요.";
+        return;
+      }
+
+      if (!audio) {
+        resultBox.textContent = "오디오 파일을 선택하세요.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("device_id", deviceId);
+      formData.append("sound_type", soundType);
+      formData.append("direction", "unknown");
+      formData.append("confidence", "1.0");
+      formData.append("audio", audio);
+
+      resultBox.textContent = "업로드 및 STT 처리 중...";
+      statusBox.textContent = "요청 전송 중";
+
+      const start = performance.now();
+
+      try {
+        const response = await fetch(`${aiUrl}/ingest/stt`, {
+          method: "POST",
+          headers: {
+            "x-ai-token": token
+          },
+          body: formData
+        });
+
+        const end = performance.now();
+        const roundTripMs = Math.round(end - start);
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          resultBox.textContent =
+            `응답을 JSON으로 파싱하지 못했습니다.\n` +
+            `HTTP Status: ${response.status}\n` +
+            `브라우저 왕복 시간(ms): ${roundTripMs}`;
+          statusBox.textContent = "응답 파싱 실패";
+          return;
+        }
+
+        if (!response.ok) {
+          resultBox.textContent =
+            JSON.stringify(data, null, 2) +
+            `\n\n[HTTP Status] ${response.status}` +
+            `\n[브라우저 왕복 시간(ms)] ${roundTripMs}`;
+          statusBox.textContent = "요청 실패";
+          return;
+        }
+
+        resultBox.textContent =
+          JSON.stringify(data, null, 2) +
+          `\n\n[브라우저 왕복 시간(ms)] ${roundTripMs}`;
+
+        statusBox.textContent = "요청 성공";
+      } catch (error) {
+        resultBox.textContent = `에러: ${error}`;
+        statusBox.textContent = "네트워크 에러";
+      }
+    }
+  </script>
 </body>
 </html>
+```
