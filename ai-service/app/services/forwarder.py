@@ -1,28 +1,19 @@
-import requests
-from fastapi import HTTPException, status
-
-from app.core.config import settings
-from app.schemas.forward import ForwardPayload
+from app.schemas.forward import ForwardAlertRequest
+import time
 
 
-def forward_to_backend(payload: ForwardPayload) -> dict:
-    url = f"{settings.backend_internal_url.rstrip('/')}/api/v1/alerts"
-    headers = {
-        "x-api-key": settings.backend_api_key,
-        "Content-Type": "application/json",
-    }
+class ForwarderService:
+    async def send_alert(self, payload: ForwardAlertRequest) -> dict:
+        start = time.perf_counter()
 
-    try:
-        response = requests.post(
-            url,
-            headers=headers,
-            json=payload.model_dump(),
-            timeout=settings.forward_timeout_sec,
-        )
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as exc:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Failed to forward event to backend: {exc}",
-        ) from exc
+        print("[Forwarder] mock forwarding 시작")
+        print(payload.model_dump())
+
+        elapsed = time.perf_counter() - start
+        print(f"[Forwarder] mock forwarding 완료 | {elapsed:.4f}s")
+
+        return {
+            "mocked": True,
+            "message": "Backend forwarding skipped in local/render test",
+            "elapsed_sec": round(elapsed, 4),
+        }
