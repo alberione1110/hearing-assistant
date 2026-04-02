@@ -10,11 +10,11 @@ class Settings(BaseSettings):
     backend_internal_url: str = "http://localhost:8000"
     backend_api_key: str = "change-me"
 
-    stt_provider: str = "faster-whisper"
+    stt_provider: str = "openai"
     stt_language: str = "ko"
-    whisper_model_size: str = "tiny"
-    whisper_device: str = "cpu"
-    whisper_compute_type: str = "int8"
+
+    openai_api_key: str = ""
+    openai_stt_model: str = "gpt-4o-mini-transcribe"
 
     forward_timeout_sec: int = 10
     min_confidence: float = 0.0
