@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     stt_provider: str = "faster-whisper"
     stt_language: str = "ko"
-    whisper_model_size: str = "base"
+    whisper_model_size: str = "tiny"
     whisper_device: str = "cpu"
     whisper_compute_type: str = "int8"
 
