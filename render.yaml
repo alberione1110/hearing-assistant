@@ -14,7 +14,7 @@ services:
         value: hearing-backend-service
       - key: APP_ENV
         value: production
-      - key: API_KEY
+      - key: BACKEND_API_KEY
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
