@@ -9,7 +9,6 @@ class EventIn(BaseModel):
     is_risk: bool
     direction: str | None = "unknown"
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
-    detected_text: str | None = None
     metadata: dict[str, Any] | None = None
 
 
