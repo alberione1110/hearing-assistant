@@ -23,26 +23,6 @@ services:
       - key: BACKEND_CORS_ORIGINS
         value: "*"
 
-  - type: web
-    name: hearing-ai-service
-    runtime: docker
-    dockerContext: ./ai-service
-    dockerfilePath: ./ai-service/Dockerfile
-    plan: free
-    autoDeploy: true
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "8001"
-      - key: APP_NAME
-        value: hearing-ai-service
-      - key: APP_ENV
-        value: production
-      - key: AI_SHARED_TOKEN
-        generateValue: true
-      - key: BACKEND_INTERNAL_URL
-        value: https://hearing-backend-service.onrender.com
-
 databases:
   - name: hearing-postgres
     plan: free

@@ -26,21 +26,6 @@ services:
     ports:
       - "8000:8000"
 
-  ai-service:
-    build:
-      context: ./ai-service
-    container_name: ai-service
-    env_file:
-      - .env
-    environment:
-      PORT: 8001
-      BACKEND_INTERNAL_URL: http://backend-service:8000
-      AI_SHARED_TOKEN: change-me
-    depends_on:
-      - backend-service
-    ports:
-      - "8001:8001"
-
   admin-web:
     build:
       context: ./admin-web
