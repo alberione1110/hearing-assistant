@@ -32,7 +32,7 @@ services:
     container_name: admin-web
     depends_on:
       - backend-service
-      - ai-service
+      # - ai-service
     ports:
       - "8080:80"
 
