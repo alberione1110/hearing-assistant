@@ -9,28 +9,6 @@ class HealthResponse(BaseModel):
     env: str
 
 
-class SoundEventCreate(BaseModel):
-    device_id: str = Field(..., examples=['cap-001'])
-    sound_type: str = Field(..., examples=['car_horn'])
-    is_risk: bool = True
-    direction: str | None = Field(default=None, examples=['front'])  # front | back | left | right | unknown
-    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
-    stt_text: str | None = Field(default=None, examples=['뒤에서 자동차 경적'])
-    raw_payload: dict | None = None
-
-
-class SoundEventResponse(BaseModel):
-    id: int
-    device_id: str
-    sound_type: str
-    is_risk: bool
-    direction: str | None
-    confidence: float | None
-    stt_text: str | None
-    created_at: datetime
-    
-    model_config = {'from_attributes': True}
-    
 # 회원가입 요청
 class UserCreate(BaseModel):
     email: str = Field(..., examples=['user@example.com'])
@@ -65,30 +43,14 @@ class TokenResponse(BaseModel):
 class RefreshRequest(BaseModel):
     refresh_token: str
     
-    
-# ── 자막 히스토리 응답 ──
-# GET /api/v1/subtitles 에서 자막 하나하나의 형태를 정의
-class SubtitleResponse(BaseModel):
-    id: int                      # 자막 고유 번호
-    text: str                    # STT 변환된 자막 텍스트
-    direction: str | None        # 소리 방향 (front/back/left/right/unknown)
-    confidence: float | None     # 방향 신뢰도 (0.0~1.0)
-    created_at: datetime         # 감지 시각
 
-    model_config = {'from_attributes': True}  # DB 모델 → 응답 자동 변환 허용
+# ── 방향 감지 ──
+class DirectionCreate(BaseModel):
+    direction: str = Field(..., examples=['front'])
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    sound_type: str | None = Field(default=None, examples=['car_horn'])
 
 
-# 자막 목록을 페이지 단위로 묶어서 응답하는 형태
-# 예: {"items": [...], "total": 150, "page": 1, "size": 20}
-class PaginatedSubtitles(BaseModel):
-    items: list[SubtitleResponse]  # 자막 목록
-    total: int                     # 전체 건수
-    page: int                      # 현재 페이지 번호
-    size: int                      # 페이지당 건수    
-    
-    
-# ── 방향 감지 이력 응답 ──
-# GET /api/v1/directions 에서 방향 감지 하나하나의 형태를 정의
 class DirectionResponse(BaseModel):
     id: int                      # 방향 감지 고유 번호
     direction: str               # 소리 방향 (front/back/left/right)
