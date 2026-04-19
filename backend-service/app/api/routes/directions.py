@@ -1,15 +1,31 @@
 # app/api/routes/directions.py
-# 방향 감지 이력 조회 API
-# GET /api/v1/directions → 로그인한 사용자의 방향 감지 기록을 조회
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db.models import Direction
-from app.schemas import PaginatedDirections
+from app.schemas import DirectionCreate, DirectionResponse, PaginatedDirections
 from app.core.security import get_current_user
 
 router = APIRouter(prefix='/api/v1/directions', tags=['directions'])
+
+
+@router.post('', response_model=DirectionResponse, status_code=201)
+def create_direction(
+    payload: DirectionCreate,
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    event = Direction(
+        user_id=user_id,
+        direction=payload.direction,
+        confidence=payload.confidence,
+        sound_type=payload.sound_type,
+    )
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
 
 
 @router.get('', response_model=PaginatedDirections)
