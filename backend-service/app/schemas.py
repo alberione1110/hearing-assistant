@@ -72,10 +72,9 @@ class PaginatedDirections(BaseModel):
 # ── 설정 조회 응답 ──
 # GET /api/v1/settings 에서 반환되는 사용자 설정 형태
 class SettingResponse(BaseModel):
-    font_size: int          # 자막 폰트 크기 (14~28)
-    language: str           # 언어 (ko, en, ja)
-    vibration_on: bool      # 진동 알림 ON/OFF
-    output_device: str      # 출력 장치 (watch, glasses, both)
+    font_size: str              # 자막 폰트 크기 (small | medium | large)
+    vibration_on: bool          # 워치 진동 알림 ON/OFF
+    glasses_auto_switch: bool   # call 클래스 감지 시 글래스 모드 자동 전환 팝업 ON/OFF
 
     model_config = {'from_attributes': True}
 
@@ -83,12 +82,10 @@ class SettingResponse(BaseModel):
 # ── 설정 수정 요청 ──
 # PUT /api/v1/settings 에서 클라이언트가 보내는 형태
 # 모든 필드가 선택(None 가능)이라서, 바꾸고 싶은 값만 보내면 됨
-# 예: {"font_size": 20} 만 보내면 폰트만 변경됨
+# 예: {"font_size": "large"} 만 보내면 폰트만 변경됨
 class SettingUpdate(BaseModel):
-    font_size: int | None = Field(default=None, ge=14, le=28)          # ge=최소값, le=최대값
-    language: str | None = Field(default=None, pattern='^(ko|en|ja)$')  # 정규식으로 ko/en/ja만 허용
+    # pattern: small/medium/large 중 하나만 허용
+    font_size: str | None = Field(default=None, pattern='^(small|medium|large)$')
     vibration_on: bool | None = None
-    output_device: str | None = Field(default=None, pattern='^(watch|glasses|both)$')
-    
-    
+    glasses_auto_switch: bool | None = None
             

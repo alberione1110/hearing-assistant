@@ -5,11 +5,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.directions import router as directions_router
 from app.api.routes.settings import router as settings_router
 from app.core.config import settings
-from app.db.base import Base
-from app.db.session import engine
 
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=settings.app_name)
 

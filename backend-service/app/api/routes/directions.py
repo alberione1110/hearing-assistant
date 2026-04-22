@@ -32,7 +32,7 @@ def create_direction(
 def get_directions(
     page: int = Query(default=1, ge=1, description='페이지 번호'),
     size: int = Query(default=20, ge=1, le=100, description='페이지당 건수'),
-    # subtitles와 다른 점: 날짜 필터 대신 방향 필터가 있음
+    # 방향 필터: 특정 방향에서 온 소리만 조회 가능
     direction: str | None = Query(default=None, description='방향 필터 (front|back|left|right)'),
     user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),

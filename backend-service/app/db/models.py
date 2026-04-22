@@ -1,23 +1,10 @@
 from datetime import datetime
-from sqlalchemy import String, Float, DateTime, Boolean, Text, Integer, ForeignKey
+from sqlalchemy import String, Float, DateTime, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
 
-class SoundEvent(Base):
-    __tablename__ = 'sound_events'
-
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    device_id: Mapped[str] = mapped_column(String(100), index=True)
-    sound_type: Mapped[str] = mapped_column(String(100), index=True)
-    is_risk: Mapped[bool] = mapped_column(Boolean, default=False)
-    direction: Mapped[str | None] = mapped_column(String(20), nullable=True)  # front | back | left | right | unknown
-    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    stt_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    raw_payload: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-
+# 사용자 계정 정보
 class User(Base):
     __tablename__ = 'users'
 
@@ -25,20 +12,11 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     platform: Mapped[str] = mapped_column(String(10), nullable=False)  # ios | android
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)    
-    
-#STT로 변환된 자막 기록을 저장하는 테이블    
-class Subtitle(Base):
-    __tablename__ = 'subtitles'
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-    direction: Mapped[str | None] = mapped_column(String(10), nullable=True)
-    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)    
-    
-#방향 감지 이력을 저장하는 테이블(자막 없이 방향만 감지된 경우)
+
+# 방향 감지 이력을 저장하는 테이블
+# 프론트가 AI로부터 방향 데이터를 수신한 시점에 JWT와 함께 POST /api/v1/directions 로 저장 요청
 class Direction(Base):
     __tablename__ = 'directions'
 
@@ -48,15 +26,16 @@ class Direction(Base):
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
     sound_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    
-#사용자별 설정(폰트 크기, 언어, 진동 ON/OFF 등)    
+
+
+# 사용자별 설정
+# - font_size: 자막 폰트 크기 (small / medium / large)
+# - vibration_on: 워치 진동 알림 ON/OFF
+# - glasses_auto_switch: call 클래스 감지 시 글래스 모드 자동 전환 팝업 ON/OFF
 class Setting(Base):
     __tablename__ = 'settings'
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), primary_key=True)
-    font_size: Mapped[int] = mapped_column(Integer, default=14)
-    language: Mapped[str] = mapped_column(String(5), default='ko')
+    font_size: Mapped[str] = mapped_column(String(10), default='medium')
     vibration_on: Mapped[bool] = mapped_column(Boolean, default=True)
-    output_device: Mapped[str] = mapped_column(String(10), default='both')
-    
-            
+    glasses_auto_switch: Mapped[bool] = mapped_column(Boolean, default=True)
