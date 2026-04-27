@@ -37,5 +37,5 @@ class Setting(Base):
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), primary_key=True)
     font_size: Mapped[str] = mapped_column(String(10), default='medium')
-    vibration_on: Mapped[bool] = mapped_column(Boolean, default=True)
+    vibration_type: Mapped[str] = mapped_column(String(10), default='SINGLE')
     glasses_auto_switch: Mapped[bool] = mapped_column(Boolean, default=True)
