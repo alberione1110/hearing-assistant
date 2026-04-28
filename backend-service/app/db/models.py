@@ -25,7 +25,7 @@ class Direction(Base):
     direction: Mapped[str] = mapped_column(String(10), nullable=False)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
     sound_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
 
 
 # 사용자별 설정
