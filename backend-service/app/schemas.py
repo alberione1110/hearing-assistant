@@ -53,7 +53,7 @@ class DirectionCreate(BaseModel):
 
 class DirectionResponse(BaseModel):
     id: int                      # 방향 감지 고유 번호
-    direction: str               # 소리 방향 (front/back/left/right)
+    direction: str               # 소리 방향 (8방향, N/NE/E/SE/S/SW/W/NW)
     confidence: float            # 방향 신뢰도 (0.0~1.0)
     sound_type: str | None       # 소리 유형 (car_horn, siren 등)
     created_at: datetime         # 감지 시각
@@ -73,7 +73,7 @@ class PaginatedDirections(BaseModel):
 # GET /api/v1/settings 에서 반환되는 사용자 설정 형태
 class SettingResponse(BaseModel):
     font_size: str              # 자막 폰트 크기 (small | medium | large)
-    vibration_on: bool          # 워치 진동 알림 ON/OFF
+    vibration_type : str        # OFF | SINGLE | DOUBLE | LONG
     glasses_auto_switch: bool   # call 클래스 감지 시 글래스 모드 자동 전환 팝업 ON/OFF
 
     model_config = {'from_attributes': True}
@@ -86,6 +86,6 @@ class SettingResponse(BaseModel):
 class SettingUpdate(BaseModel):
     # pattern: small/medium/large 중 하나만 허용
     font_size: str | None = Field(default=None, pattern='^(small|medium|large)$')
-    vibration_on: bool | None = None
+    vibration_type: str | None = Field(default=None, pattern='^(OFF|SINGLE|DOUBLE|LONG)$')
     glasses_auto_switch: bool | None = None
             
