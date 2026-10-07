@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     app_name: str = 'hearing-backend-service'
     app_env: str = 'development'
+    secret_key: str = 'change-me-in-production'
     api_key: str = 'change-me'
     database_url: str = 'postgresql+psycopg://postgres:postgres@localhost:5432/hearing_assistant'
     backend_cors_origins: List[str] | str = Field(default_factory=lambda: ['*'])

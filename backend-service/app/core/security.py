@@ -3,12 +3,13 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from app.core.config import settings 
 
 # 비밀번호 암호화 설정
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT 설정
-SECRET_KEY = "change-me-in-production" # 나중에 .env로 옮겨야함
+SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256" # jwt 서명 방식
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # 30분
 REFRESH_TOKEN_EXPIRE_DAYS = 7 # 7일
