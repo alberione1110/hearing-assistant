@@ -12,23 +12,23 @@
 |---|---|
 | 기간 | 2026.03 ~ 2026.06 |
 | 유형 | 심화 캡스톤디자인 (팀 프로젝트) |
-| 팀 구성 | 5명 |
+| 팀 구성 | 6명 |
 | 내 역할 | **팀장 · 서버 아키텍처 · 배포 · AI 서버 개발** |
-| 관련 논문 | 「실시간 소리 인식 및 방향 추정을 활용한 청각장애인 생활 보조 시스템 설계 및 구현」, 한국정보기술학회 2026 (공동 1저자) |
+| 관련 논문 | 「실시간 소리 인식 및 방향 추정을 활용한 청각장애인 생활 보조 시스템 설계 및 구현」, 한국정보기술학회 하계 종합학술대회 논문집 게재, 2026.06 (공동 1저자) |
 
 ### 레포 구성
 
 | 레포 | 역할 |
 |---|---|
 | **hearing-assistant** (이 레포) | 메인 백엔드 API, PostgreSQL, 배포 설정 |
-| [deafassist_ai_server](https://github.com/alberione1110/deafassist_ai_server) | 라즈베리파이 엣지 AI 서버 (Keyword Spotting + GCC-PHAT 방향 추정, WebSocket) |
+| [deafassist_ai_server](https://github.com/alberione1110/deafassist_ai_server) | 라즈베리파이 엣지 AI 서버 (Wav2Vec2 Keyword Spotting + GCC-PHAT 방향 추정, WebSocket) |
 | 모바일 앱 · AR 글래스 | 팀원 담당, 별도 관리 |
 
 ---
 
 ## 핵심 기능
 
-1. **위험 소리 분류 + 8방향 추정**: ReSpeaker 4-Mic Array 입력으로 8종 소리를 분류하고 GCC-PHAT으로 방향을 추정 (AI 서버)
+1. **위험 소리 분류 + 8방향 추정**: ReSpeaker 4-Mic Array 입력으로 8종 소리를 분류하고, 키워드로 판정된 소리만 GCC-PHAT으로 방향을 추정 (AI 서버)
 2. **실시간 결과 전송**: AI 서버가 WebSocket으로 추론 결과를 모바일 앱에 즉시 전달
 3. **JWT 인증**: 회원가입·로그인·토큰 재발급 (Access 30분 / Refresh 7일)
 4. **방향 감지 이력**: 사용자별 저장·조회, 페이지네이션과 방향·날짜 범위 필터, `created_at` 인덱스
@@ -74,7 +74,7 @@ flowchart LR
 | DB / Migration | PostgreSQL 16, Alembic |
 | Auth | python-jose (JWT, HS256), passlib (bcrypt) |
 | AI 서버 | PyTorch, Hugging Face Transformers, NumPy (GCC-PHAT), sounddevice |
-| Edge | Raspberry Pi, ReSpeaker 4-Mic Array |
+| Edge | Raspberry Pi 5, ReSpeaker 4-Mic Array |
 | Infra | Docker, Docker Compose, Render |
 
 ---
@@ -85,27 +85,35 @@ flowchart LR
 - **팀 운영**: 기능 브랜치 → PR → 리뷰 → 머지 흐름을 운영하고, PR 28건을 직접 리뷰·머지
 - **서버 아키텍처**: `backend-service` / `ai-service` 모노레포 골격을 설계한 뒤, AI 서비스를 엣지 레포([deafassist_ai_server](https://github.com/alberione1110/deafassist_ai_server))로 분리
 - **배포**: Dockerfile과 Docker Compose 로컬 환경 구성, Render Blueprint로 웹 서비스 + PostgreSQL 배포 구성
-- **AI 서버**: 소리 분류·방향 추정 파이프라인과 WebSocket 서버 구현. Windows에서 개발한 코드를 그대로 라즈베리파이에 배포해 엣지에서 실행
-- **모델**: Keyword Spotting 모델 파인튜닝 (팀원과 공동)
+- **AI 서버**: 16kHz 오디오를 0.1초 단위로 받아 1초 윈도우로 소리를 분류하고 방향을 추정하는 파이프라인과 WebSocket 서버 구현. REST polling의 반복 요청 지연을 피해 앱과 WebSocket으로 직접 통신
+- **모델**: Wav2Vec2 기반 Keyword Spotting 모델 파인튜닝 (팀원과 공동)
 - **초기 ai-service**: 라즈베리파이 이벤트 수신(ingest) 파이프라인 구현, STT 연동 실험
 
 **팀원**
 - 회원가입·로그인 JWT 인증과 토큰 재발급 API
 - 방향 이력·사용자 설정 테이블과 API, Alembic 도입 및 마이그레이션
 - 방향 이력 날짜 범위 필터, `created_at` 인덱스, 진동 타입 변경
-- 모바일 앱, AR 글래스 클라이언트
+- 모바일 앱(React Native, Expo), AR 글래스·워치 클라이언트
 
 ---
 
-<!--
 ## 트러블슈팅
-직접 겪은 사례가 확정되면 아래 형식으로 1~2개 작성
-### 제목
-- 문제:
-- 원인:
-- 해결:
-- 배운 점:
--->
+
+### 방향이 결과에 반영되지 않던 도달 시점 추정
+- **문제**: 처음에는 채널마다 진폭이 임계값을 처음 넘는 시점을 도달 시점으로 잡았지만, 채널 간 시점 차이가 거의 나지 않아 방향이 결과에 잘 반영되지 않았습니다.
+- **원인**: 소형 4채널 마이크 배열이라 마이크 간격이 좁아 채널 간 시간차가 매우 작고, 임계값 방식은 잡음에도 흔들렸습니다.
+- **해결**: 논문 시점에는 시간차를 입력으로 방향 클래스를 내는 MLP로 보정했습니다. 최종 코드에서는 더 단순하게 구현할 수 있는 GCC-PHAT로 교체해, 마이크 6쌍의 상호상관으로 시간차를 구하고 8방향으로 변환합니다([deafassist_ai_server](https://github.com/alberione1110/deafassist_ai_server)의 `kws_doa/gcc_phat.py`).
+
+### 추론 루프가 연결 처리를 막던 문제
+- **문제**: 단일 스크립트로 검증한 추론 코드를 WebSocket 서버로 감싸자, 추론 루프가 서버와 같은 흐름에서 돌아 앱의 `start`/`stop` 요청과 결과 전송이 막혔습니다.
+- **원인**: CPU를 쓰는 추론이 이벤트 루프를 점유했습니다.
+- **해결**: 마이크 읽기와 추론을 별도 스레드로 분리하고 결과를 `Queue`로 넘겼습니다.
+
+### 마이크 채널 누락
+- **문제**: 4채널 마이크였지만, 한쪽 채널의 소리가 지나치게 약하면 그 채널이 0으로 오지 않고 아예 빠진 채 3개 채널만 전달되어 앱과 주고받는 데이터에서 문제가 났습니다.
+- **해결**: API 형식을 채널 수에 맞게 유동적으로 바꾸고, 3개 채널만 들어오면 빠진 방향에 0을 넣어 앱이 항상 같은 형태로 받도록 했습니다. 이 예외 조건은 파트 간 설계 문서에도 추가했습니다.
+
+---
 
 ## API 요약
 
@@ -165,5 +173,5 @@ hearing-assistant/
 
 ## 관련 논문
 
-- 「실시간 소리 인식 및 방향 추정을 활용한 청각장애인 생활 보조 시스템 설계 및 구현」, 한국정보기술학회, 2026 (공동 1저자)
-https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12901222
+- 「실시간 소리 인식 및 방향 추정을 활용한 청각장애인 생활 보조 시스템 설계 및 구현」, 한국정보기술학회 하계 종합학술대회 논문집 게재, 2026.06 (공동 1저자)
+  https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12901222
